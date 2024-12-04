@@ -33,7 +33,7 @@ jobs:
                   "type": "section",
                   "text": {
                     "type": "mrkdwn",
-                    "text": "GitOps run failed on ${{ github.ref_name }}"
+                    "text": "GitOps run failed on ${{ github.ref_name }} :bomb:"
                   }
                 },
                 {
