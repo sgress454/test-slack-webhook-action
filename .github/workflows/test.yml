@@ -1,0 +1,48 @@
+name: "Test Slack webhook"
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch: # allows manual triggering
+
+defaults:
+  run:
+    shell: bash
+
+# Limit permissions of GITHUB_TOKEN.
+permissions:
+  contents: read
+
+jobs:
+  fleet-gitops:
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fail hard
+        run: echo 'exit 1' | bash
+      - name: Notify on Gitops failure
+        if: failure()
+        uses: slackapi/slack-github-action@e28cf165c92ffef168d23c5c9000cffc8a25e117 # v1.24.0
+        with:
+          payload: |
+            {
+              "text": "GitOps run failed for ${{ env.RUN_URL }}",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "GitOps run failed on ${{ github.ref_name }}"
+                  },
+                  {
+                    "type": "mrkdwn",
+                    "text": "For more details see:\n${{ env.RUN_URL }}"
+                  }
+                }
+              ]
+            }
+        env:
+          RUN_URL: https://github.com/fleetdm/fleet/actions/runs/${{ github.run_id }}\n${{ github.event.pull_request.html_url || github.event.head.html_url }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_G_HELP_DOGFOODING_WEBHOOK_URL }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
