@@ -27,7 +27,7 @@ jobs:
         with:
           payload: |
             {
-              "text": "GitOps run failed for ${{ env.RUN_URL }}",
+              "text": "GitOps run failed for ${{ env.RUN_URL }} :bomb:",
               "blocks": [
                 {
                   "type": "section",
