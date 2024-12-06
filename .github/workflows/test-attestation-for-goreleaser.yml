@@ -31,14 +31,18 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> 2"
-          args: build --clean -f .goreleaser.yaml
+          args: release --clean --prepare -f .goreleaser.yaml
+        env:
+          GORELEASER_KEY: ${{ secrets.GORELEASER }}          
       - name: Attest artifacts
         uses: actions/attest-build-provenance@v2 # v2.0
         with:
           subject-path: "dist/**"      
       - name: Run GoReleaser Release
         uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b
+        env:
+          GORELEASER_KEY: ${{ secrets.GORELEASER }}          
         with:
           distribution: goreleaser
           version: "~> 2"
-          args: release --skip-validate --skip-build -f .goreleaser.yaml
+          args: release --publish -f .goreleaser.yaml
