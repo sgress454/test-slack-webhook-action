@@ -42,6 +42,7 @@ jobs:
         uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b
         env:
           GORELEASER_KEY: ${{ secrets.GO_RELEASER }}          
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           distribution: goreleaser-pro
           version: "~> 2"
