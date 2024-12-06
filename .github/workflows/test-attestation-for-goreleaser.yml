@@ -33,7 +33,7 @@ jobs:
           version: "~> 2"
           args: release --clean --prepare -f .goreleaser.yaml
         env:
-          GORELEASER_KEY: ${{ secrets.GORELEASER }}          
+          GORELEASER_KEY: ${{ secrets.GO_RELEASER }}          
       - name: Attest artifacts
         uses: actions/attest-build-provenance@v2 # v2.0
         with:
@@ -41,7 +41,7 @@ jobs:
       - name: Run GoReleaser Release
         uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b
         env:
-          GORELEASER_KEY: ${{ secrets.GORELEASER }}          
+          GORELEASER_KEY: ${{ secrets.GO_RELEASER }}          
         with:
           distribution: goreleaser-pro
           version: "~> 2"
