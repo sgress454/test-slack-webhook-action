@@ -23,11 +23,18 @@ jobs:
       - name: Checkout
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
       - name: Run GoReleaser Build
-        run: go run github.com/goreleaser/goreleaser/v2@606c0e724fe9b980cd01090d08cbebff63cd0f72 goreleaser build --clean
-      - uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
+        uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b
+        with:
+          distribution: goreleaser
+          version: "~> 2"
+          args: build --clean -f 
+      - name: Attest artifacts
+        uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
         with:
           subject-path: "dist/**"      
       - name: Run GoReleaser Release
-        run: go run github.com/goreleaser/goreleaser/v2@606c0e724fe9b980cd01090d08cbebff63cd0f72 goreleaser release --skip-validate --skip-build
-
-
+        uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b
+        with:
+          distribution: goreleaser
+          version: "~> 2"
+          args: release --skip-validate --skip-build -f .goreleaser.yml
