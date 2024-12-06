@@ -20,6 +20,8 @@ jobs:
       attestations: write  
 
     steps:        
+      - name: Debug OIDC Env
+        run: env | grep ACTIONS_ID_TOKEN    
       - name: Checkout
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
         with:
@@ -31,7 +33,7 @@ jobs:
           version: "~> 2"
           args: build --clean -f .goreleaser.yaml
       - name: Attest artifacts
-        uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
+        uses: actions/attest-build-provenance@v2 # v2.0
         with:
           subject-path: "dist/**"      
       - name: Run GoReleaser Release
