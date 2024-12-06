@@ -29,7 +29,7 @@ jobs:
       - name: Run GoReleaser Build
         uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b
         with:
-          distribution: goreleaser
+          distribution: goreleaser-pro
           version: "~> 2"
           args: release --clean --prepare -f .goreleaser.yaml
         env:
@@ -43,6 +43,6 @@ jobs:
         env:
           GORELEASER_KEY: ${{ secrets.GORELEASER }}          
         with:
-          distribution: goreleaser
+          distribution: goreleaser-pro
           version: "~> 2"
           args: release --publish -f .goreleaser.yaml
