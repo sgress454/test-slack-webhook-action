@@ -27,7 +27,7 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> 2"
-          args: build --clean -f 
+          args: build --clean -f .goreleaser.yaml
       - name: Attest artifacts
         uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
         with:
@@ -37,4 +37,4 @@ jobs:
         with:
           distribution: goreleaser
           version: "~> 2"
-          args: release --skip-validate --skip-build -f .goreleaser.yml
+          args: release --skip-validate --skip-build -f .goreleaser.yaml
