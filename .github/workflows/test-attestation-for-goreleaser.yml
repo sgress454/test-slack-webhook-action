@@ -1,0 +1,33 @@
+name: "Test Github Attestation + Goreleaser"
+
+on:
+  push:
+    branches:
+      - test-attest
+  workflow_dispatch: # allows manual triggering
+
+defaults:
+  run:
+    shell: bash
+
+# Limit permissions of GITHUB_TOKEN.
+permissions:
+  contents: read
+
+jobs:
+  do-release:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: read
+    steps:        
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+      - name: Run GoReleaser Build
+        run: go run github.com/goreleaser/goreleaser/v2@606c0e724fe9b980cd01090d08cbebff63cd0f72 goreleaser build --clean
+      - uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
+        with:
+          subject-path: "dist/**"      
+      - name: Run GoReleaser Release
+        run: go run github.com/goreleaser/goreleaser/v2@606c0e724fe9b980cd01090d08cbebff63cd0f72 goreleaser release --skip-validate --skip-build
+
+
