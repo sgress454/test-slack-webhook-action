@@ -45,4 +45,4 @@ jobs:
         with:
           distribution: goreleaser-pro
           version: "~> 2"
-          args: release --publish -f .goreleaser.yaml
+          args: publish -f .goreleaser.yaml
