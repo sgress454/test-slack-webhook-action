@@ -2,8 +2,6 @@ name: "Test Github Attestation + Goreleaser"
 
 on:
   push:
-    branches:
-      - test-attest
     tags:
       - "*"      
   workflow_dispatch: # allows manual triggering
@@ -13,16 +11,14 @@ defaults:
     shell: bash
 
 # Limit permissions of GITHUB_TOKEN.
-permissions:
-  contents: write
-  id-token: write
-  attestations: write  
-
 jobs:
   do-release:
     runs-on: ubuntu-20.04
     permissions:
-      contents: read
+      contents: write
+      id-token: write
+      attestations: write  
+
     steps:        
       - name: Checkout
         uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
