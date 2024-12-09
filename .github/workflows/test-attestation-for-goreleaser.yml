@@ -58,7 +58,7 @@ jobs:
       - name: Docker image metadata
         id: image_metadata
         run: |
-          echo "name=digest_fleet::$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }})" >> ${GITHUB_OUTPUT}
+          echo "name=digest::$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }})" >> ${GITHUB_OUTPUT}
           echo "name=name::ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }})" >> ${GITHUB_OUTPUT}
       - name: Attest docker
         uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
