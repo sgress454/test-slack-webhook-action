@@ -46,9 +46,8 @@ jobs:
         run: |
           echo "digest=$(echo "$ARTIFACTS" | jq -r '.[]|select(.type=="Published Docker Image")|.extra.Digest')" >> "$GITHUB_OUTPUT"
           echo "name=$(echo "$ARTIFACTS" | jq -r '.[]|select(.type=="Published Docker Image")|.name|split(":")[0]')" >> "$GITHUB_OUTPUT"
-          id: image_metadata
-          env:
-            ARTIFACTS: ${{steps.goreleaser.outputs.artifacts}}
+        env:
+          ARTIFACTS: ${{steps.goreleaser.outputs.artifacts}}
       - name: Attest artifacts
         uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
         with:
