@@ -34,6 +34,7 @@ jobs:
           args: release --clean -f .goreleaser.yaml
         env:
           GORELEASER_KEY: ${{ secrets.GO_RELEASER }}          
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Attest artifacts
         uses: actions/attest-build-provenance@v2 # v2.0
         with:
