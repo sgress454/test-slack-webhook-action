@@ -53,7 +53,7 @@ jobs:
 
      # Pull the images back down to ensure we have the digest locally
       - name: Pull Docker images to get the digest
-        run: docker pull sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }}
+        run: docker pull ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }}
         
       - name: Docker image metadata
         id: image_metadata
