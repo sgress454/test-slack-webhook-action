@@ -36,6 +36,6 @@ jobs:
           GORELEASER_KEY: ${{ secrets.GO_RELEASER }}          
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Attest artifacts
-        uses: actions/attest-build-provenance@v2 # v2.0
+        uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
         with:
           subject-path: "dist/**"      
