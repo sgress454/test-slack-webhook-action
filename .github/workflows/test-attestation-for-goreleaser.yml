@@ -27,6 +27,7 @@ jobs:
         with:
           fetch-depth: 0
       - name: Run GoReleaser Build
+        id: goreleaser
         uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b
         with:
           distribution: goreleaser-pro
@@ -38,4 +39,8 @@ jobs:
       - name: Attest artifacts
         uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
         with:
-          subject-path: "dist/**"      
+          subject-path: "dist/**"   
+      - name: Output artifacts
+        env:
+          ARTIFACTS: ${{steps.goreleaser.outputs.artifacts}}      
+        run: echo ${{ env.ARTIFACTS }}   
