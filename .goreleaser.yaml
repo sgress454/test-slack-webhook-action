@@ -9,7 +9,8 @@
 version: 2
 
 builds:
-  - env:
+  - id: test
+    env:
       - CGO_ENABLED=0
     goos:
       - linux
@@ -43,3 +44,5 @@ dockers:
     ids:
       - test
     dockerfile: Dockerfile
+    image_templates:
+      - 'test/test:{{ .ShortCommit }}'
