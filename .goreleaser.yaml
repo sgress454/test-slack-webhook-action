@@ -45,4 +45,4 @@ dockers:
       - test
     dockerfile: Dockerfile
     image_templates:
-      - 'test/test:{{ .ShortCommit }}'
+      - ghcr.io/sgress454/test-slack-webhook-action:{{ .ShortCommit }}
