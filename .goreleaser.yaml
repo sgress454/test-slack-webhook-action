@@ -46,3 +46,10 @@ dockers:
     dockerfile: Dockerfile
     image_templates:
       - ghcr.io/sgress454/test-slack-webhook-action:{{ .ShortCommit }}
+  - goos: linux
+    goarch: amd64
+    ids:
+      - test
+    dockerfile: Dockerfile
+    image_templates:
+      - ghcr.io/sgress454/test-slack-webhook-action:foo

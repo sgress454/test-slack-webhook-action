@@ -41,7 +41,7 @@ jobs:
         env:
           GORELEASER_KEY: ${{ secrets.GO_RELEASER }}          
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-      - name: Docker image metadat
+      - name: Docker image metadata
         id: image_metadata
         run: |
           echo "digest=$(echo "$ARTIFACTS" | jq -r '.[]|select(.type=="Published Docker Image")|.extra.Digest')" >> "$GITHUB_OUTPUT"
