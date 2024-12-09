@@ -49,7 +49,7 @@ jobs:
           
       - name: Publish docker images
         id: docker_publish
-        run: docker push sgress454/test-slack-webhook-action --all-tags
+        run: docker push ghcr.io/sgress454/test-slack-webhook-action --all-tags
 
      # Pull the images back down to ensure we have the digest locally
       - name: Pull Docker images to get the digest
@@ -58,7 +58,7 @@ jobs:
       - name: Docker image metadata
         id: image_metadata
         run: |
-          echo "::set-output name=digest_fleet::$(docker inspect --format='{{index .RepoDigests 0}}' sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }})"
+          echo "::set-output name=digest_fleet::$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }})"
       - name: Attest docker
         uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
         with:
