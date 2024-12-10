@@ -37,7 +37,7 @@ jobs:
         with:
           distribution: goreleaser-pro
           version: "~> 2"
-          args: release --clean --snapshot -f .goreleaser.yaml
+          args: release --clean -f .goreleaser.yaml
         env:
           GORELEASER_KEY: ${{ secrets.GO_RELEASER }}          
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
@@ -45,7 +45,7 @@ jobs:
       # Get the commit hash so we can get image digests
       - name: Get the short commit hash
         id: commit
-        run: echo "::set-output name=short_commit::$(git rev-parse --short HEAD)"
+        run: echo "short_commit=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
           
       - name: Publish docker images
         id: docker_publish
@@ -58,7 +58,7 @@ jobs:
       - name: Docker image metadata
         id: image_metadata
         run: |
-          echo "digest=$(docker inspect --format='{{index .RepoDigests 0}}' ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }} | awk -F'@' '{print $2}')" >> ${GITHUB_OUTPUT}
+          echo "digest_fleet=$(echo ${{ steps.goreleaser.outputs.digest }} | jq -r '.[]|select(.type == "Published Docker Image" and (.name | contains("sgress454/test-slack-webhook-action::${{ steps.commit.outputs.short_commit }}"))) | select(. != null)|.extra.Digest" >> "$GITHUB_OUTPUT"
           echo "name=ghcr.io/sgress454/test-slack-webhook-action" >> ${GITHUB_OUTPUT}
       - name: Attest docker
         uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
