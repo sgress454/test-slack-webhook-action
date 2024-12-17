@@ -37,10 +37,16 @@ jobs:
         with:
           distribution: goreleaser-pro
           version: "~> 2"
-          args: release --clean -f .goreleaser.yaml
+          args: release --clean --skip=publish -f .goreleaser.yaml
         env:
           GORELEASER_KEY: ${{ secrets.GO_RELEASER }}          
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      - name: Upload
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # 4.3.3
+        with:
+          name: test-bin
+          path: dist/test-slack-webhook-action
 
       # Get the commit hash so we can get image digests
       - name: Get the short commit hash
@@ -77,6 +83,10 @@ jobs:
     needs: do-release
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        with:
+          fetch-depth: 0
       - name: Get the short commit hash
         id: commit
         run: echo "short_commit=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
@@ -84,6 +94,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
+          ls -al ./dist
           set +e
           NUM_VERIFIED=0
           gh attestation verify dist/test-slack-webhook-action --repo=sgress454/test-slack-webhook-action
