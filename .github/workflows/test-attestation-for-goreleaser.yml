@@ -78,14 +78,19 @@ jobs:
       - name: Get the short commit hash
         id: commit
         run: echo "short_commit=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artifacts
+          merge-multiple: true
+      - name: Display structure of downloaded files
+        run: ls -R /tmp/artifacts        
       - name: verify
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
-          ls -al ./dist
           set +e
           NUM_VERIFIED=0
-          gh attestation verify dist/test-slack-webhook-action.tar.gz --repo=sgress454/test-slack-webhook-action
+          gh attestation verify /tmp/artifacts/test-slack-webhook-action.tar.gz --repo=sgress454/test-slack-webhook-action
           NUM_VERIFIED=$((NUM_VERIFIED + $?))
           gh attestation verify oci://ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }} --repo=sgress454/test-slack-webhook-action
           NUM_VERIFIED=$((NUM_VERIFIED + $?))
