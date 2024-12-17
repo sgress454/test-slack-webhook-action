@@ -71,6 +71,9 @@ jobs:
         with:
           subject-path: "dist/**"      
   verify-attestation:
+    permissions:
+      contents: read
+      attestations: read  
     needs: do-release
     runs-on: ubuntu-latest
     steps:
@@ -78,6 +81,8 @@ jobs:
         id: commit
         run: echo "short_commit=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
       - name: verify
+        env:
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
         run: |
           set +e
           NUM_VERIFIED=0
