@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+  pull_request:
   workflow_dispatch: # allows manual triggering
 
 defaults:
@@ -20,9 +21,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Fail hard
-        run: echo 'exit 0' | bash
+        run: echo 'exit 1' | bash
       - name: Notify on Gitops failure
-        if: failure()
+        if: failure() && github.ref_name == 'main'
         uses: slackapi/slack-github-action@e28cf165c92ffef168d23c5c9000cffc8a25e117 # v1.24.0
         with:
           payload: |
