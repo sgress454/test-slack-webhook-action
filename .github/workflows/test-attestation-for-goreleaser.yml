@@ -81,9 +81,9 @@ jobs:
         run: |
           set +e
           NUM_VERIFIED=0
-          gh verify dist/test-slack-webhook-action --repo=sgress454/test-slack-webhook-action
+          gh attestation verify dist/test-slack-webhook-action --repo=sgress454/test-slack-webhook-action
           NUM_VERIFIED=$((NUM_VERIFIED + $?))
-          gh verify oci://ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }} --repo=sgress454/test-slack-webhook-action
+          gh attestation verify oci://ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }} --repo=sgress454/test-slack-webhook-action
           NUM_VERIFIED=$((NUM_VERIFIED + $?))
           if [[ "$NUM_VERIFIED" -ne "0" ]]; then echo "One or more attestation verifications failed (see above)"; fi          
           exit $NUM_VERIFIED
