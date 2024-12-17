@@ -58,7 +58,9 @@ jobs:
       - name: Docker image metadata
         id: image_metadata
         run: |
-          echo "digest=$(cat artifacts.json | jq -r '.[]|select(.type == "Published Docker Image" and (.name | contains("sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }}"))) | select(. != null)|.extra.Digest')"
+          ls -al
+          ls -al ./dist
+          echo "digest=$(cat ./dist/artifacts.json | jq -r '.[]|select(.type == "Published Docker Image" and (.name | contains("sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }}"))) | select(. != null)|.extra.Digest')"
           echo "name=ghcr.io/sgress454/test-slack-webhook-action" >> ${GITHUB_OUTPUT}
       - name: Attest docker
         uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
