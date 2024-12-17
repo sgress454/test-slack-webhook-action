@@ -37,35 +37,23 @@ jobs:
         with:
           distribution: goreleaser-pro
           version: "~> 2"
-          args: release --clean --skip=publish -f .goreleaser.yaml
+          args: release --clean -f .goreleaser.yaml
         env:
           GORELEASER_KEY: ${{ secrets.GO_RELEASER }}          
           GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
-
-      - name: Upload
-        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # 4.3.3
-        with:
-          name: test-bin
-          path: dist/test-slack-webhook-action
 
       # Get the commit hash so we can get image digests
       - name: Get the short commit hash
         id: commit
         run: echo "short_commit=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
-          
-      - name: Publish docker images
-        id: docker_publish
-        run: docker push ghcr.io/sgress454/test-slack-webhook-action --all-tags
-
-     # Pull the images back down to ensure we have the digest locally
-      - name: Pull Docker images to get the digest
-        run: docker pull ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }}
-        
+                  
       - name: Docker image metadata
         id: image_metadata
         run: |
           echo "digest=$(cat ./dist/artifacts.json | jq -r '.[]|select(.type == "Published Docker Image" and (.name | contains("sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }}"))) | select(. != null)|.extra.Digest')" >> ${GITHUB_OUTPUT}
           echo "name=ghcr.io/sgress454/test-slack-webhook-action" >> ${GITHUB_OUTPUT}
+          echo $GITHUB_OUTPUT
+
       - name: Attest docker
         uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
         with:
@@ -97,7 +85,7 @@ jobs:
           ls -al ./dist
           set +e
           NUM_VERIFIED=0
-          gh attestation verify dist/test-slack-webhook-action --repo=sgress454/test-slack-webhook-action
+          gh attestation verify dist/test-slack-webhook-action.tar.gz --repo=sgress454/test-slack-webhook-action
           NUM_VERIFIED=$((NUM_VERIFIED + $?))
           gh attestation verify oci://ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }} --repo=sgress454/test-slack-webhook-action
           NUM_VERIFIED=$((NUM_VERIFIED + $?))
