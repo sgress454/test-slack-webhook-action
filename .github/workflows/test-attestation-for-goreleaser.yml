@@ -66,3 +66,26 @@ jobs:
           subject-digest: ${{steps.image_metadata.outputs.digest}}
           subject-name: ${{steps.image_metadata.outputs.name}}
           push-to-registry: true
+      - name: Attest artifacts
+        uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
+        with:
+          subject-path: "dist/**"      
+  verify-attestation:
+    needs: do-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get the short commit hash
+        id: commit
+        run: echo "short_commit=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - name: verify
+        run: |
+          set +e
+          NUM_VERIFIED=0
+          gh verify dist/test-slack-webhook-action --repo=sgress454/test-slack-webhook-action
+          NUM_VERIFIED=$((NUM_VERIFIED + $?))
+          gh verify oci://ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }} --repo=sgress454/test-slack-webhook-action
+          NUM_VERIFIED=$((NUM_VERIFIED + $?))
+          if [[ "$NUM_VERIFIED" -ne "0" ]]; then echo "One or more attestation verifications failed (see above)"; fi          
+          exit $NUM_VERIFIED
+
+
