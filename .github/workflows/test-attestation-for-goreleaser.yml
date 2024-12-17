@@ -80,16 +80,16 @@ jobs:
       attestations: write  
       packages: write
     steps:
-      - run: touch foobar
+      - run: touch test-slack-webhook-action_Darwin_arm64.tar.gz
       - name: Upload
         uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # 4.3.3
         with:
           name: foobar
-          path: ./foobar
+          path: ./test-slack-webhook-action_Darwin_arm64.tar.gz
       - name: Attest artifacts
         uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
         with:
-          subject-path: "foobar"      
+          subject-path: "./test-slack-webhook-action_Darwin_arm64.tar.gz"      
 
   verify-attestation:
     permissions:
@@ -108,7 +108,6 @@ jobs:
       - uses: actions/download-artifact@v4
         with:
           path: /tmp/artifacts
-          merge-multiple: true
       - name: Display structure of downloaded files
         run: ls -alR /tmp/artifacts
       - name: Log in to the Container registry
@@ -123,7 +122,9 @@ jobs:
         run: |
           set +e
           NUM_VERIFIED=0
-          gh attestation verify /tmp/artifacts/test-slack-webhook-action_Darwin_arm64.tar.gz --repo=sgress454/test-slack-webhook-action
+          gh attestation verify /tmp/artifacts/foobar/test-slack-webhook-action_Darwin_arm64.tar.gz --repo=sgress454/test-slack-webhook-action
+          NUM_VERIFIED=$((NUM_VERIFIED + $?))
+          gh attestation verify /tmp/artifacts/test-bin/test-slack-webhook-action_Darwin_arm64.tar.gz --repo=sgress454/test-slack-webhook-action
           NUM_VERIFIED=$((NUM_VERIFIED + $?))
           gh attestation verify oci://ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }} --repo=sgress454/test-slack-webhook-action
           NUM_VERIFIED=$((NUM_VERIFIED + $?))
