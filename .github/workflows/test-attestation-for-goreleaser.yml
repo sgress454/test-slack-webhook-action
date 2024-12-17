@@ -72,6 +72,25 @@ jobs:
         uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
         with:
           subject-path: "dist/**"      
+  upload-random-file:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write  
+      packages: write
+    steps:
+      - run: touch foobar
+      - name: Upload
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # 4.3.3
+        with:
+          name: foobar
+          path: ./foobar
+      - name: Attest artifacts
+        uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
+        with:
+          subject-path: "foobar"      
+
   verify-attestation:
     permissions:
       contents: read
@@ -92,6 +111,12 @@ jobs:
           merge-multiple: true
       - name: Display structure of downloaded files
         run: ls -alR /tmp/artifacts
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.ACCESS_TOKEN }}          
       - name: verify
         env:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
