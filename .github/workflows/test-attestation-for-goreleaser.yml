@@ -1,0 +1,134 @@
+name: "Test Github Attestation + Goreleaser"
+
+on:
+  push:
+    tags:
+      - "*"      
+  workflow_dispatch: # allows manual triggering!!!
+
+defaults:
+  run:
+    shell: bash
+
+# Limit permissions of GITHUB_TOKEN.
+jobs:
+  do-release:
+    runs-on: ubuntu-20.04
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write  
+      packages: write
+
+    steps:        
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        with:
+          fetch-depth: 0
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.ACCESS_TOKEN }}          
+      - name: Run GoReleaser Build
+        id: goreleaser
+        uses: goreleaser/goreleaser-action@f82d6c1c344bcacabba2c841718984797f664a6b
+        with:
+          distribution: goreleaser-pro
+          version: "~> 2"
+          args: release --clean -f .goreleaser.yaml
+        env:
+          GORELEASER_KEY: ${{ secrets.GO_RELEASER }}          
+          GITHUB_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+
+      # Get the commit hash so we can get image digests
+      - name: Get the short commit hash
+        id: commit
+        run: |
+          ls -al ./dist
+          echo "short_commit=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+                  
+      - name: Upload
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # 4.3.3
+        with:
+          name: test-bin
+          path: ./dist/test-slack-webhook-action_Darwin_arm64.tar.gz
+
+      - name: Docker image metadata
+        id: image_metadata
+        run: |
+          echo "digest=$(cat ./dist/artifacts.json | jq -r '.[]|select(.type == "Published Docker Image" and (.name | contains("sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }}"))) | select(. != null)|.extra.Digest')" >> ${GITHUB_OUTPUT}
+          echo "name=ghcr.io/sgress454/test-slack-webhook-action" >> ${GITHUB_OUTPUT}
+          echo $GITHUB_OUTPUT
+
+      - name: Attest docker
+        uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
+        with:
+          subject-digest: ${{steps.image_metadata.outputs.digest}}
+          subject-name: ${{steps.image_metadata.outputs.name}}
+          push-to-registry: true
+      - name: Attest artifacts
+        uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
+        with:
+          subject-path: "dist/**"      
+  upload-random-file:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      id-token: write
+      attestations: write  
+      packages: write
+    steps:
+      - run: touch test-slack-webhook-action_Darwin_arm64.tar.gz
+      - name: Upload
+        uses: actions/upload-artifact@65462800fd760344b1a7b4382951275a0abb4808 # 4.3.3
+        with:
+          name: foobar
+          path: ./test-slack-webhook-action_Darwin_arm64.tar.gz
+      - name: Attest artifacts
+        uses: actions/attest-build-provenance@619dbb2e03e0189af0c55118e7d3c5e129e99726 # v2.0
+        with:
+          subject-path: "./test-slack-webhook-action_Darwin_arm64.tar.gz"      
+
+  verify-attestation:
+    permissions:
+      contents: read
+      attestations: read  
+    needs: do-release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@c85c95e3d7251135ab7dc9ce3241c5835cc595a9 # v3.5.3
+        with:
+          fetch-depth: 0
+      - name: Get the short commit hash
+        id: commit
+        run: echo "short_commit=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
+      - uses: actions/download-artifact@v4
+        with:
+          path: /tmp/artifacts
+      - name: Display structure of downloaded files
+        run: ls -alR /tmp/artifacts
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.ACCESS_TOKEN }}          
+      - name: verify
+        env:
+          GH_TOKEN: ${{ secrets.ACCESS_TOKEN }}
+        run: |
+          set +e
+          NUM_VERIFIED=0
+          gh attestation verify /tmp/artifacts/foobar/test-slack-webhook-action_Darwin_arm64.tar.gz --repo=sgress454/test-slack-webhook-action
+          NUM_VERIFIED=$((NUM_VERIFIED + $?))
+          gh attestation verify /tmp/artifacts/test-bin/test-slack-webhook-action_Darwin_arm64.tar.gz --repo=sgress454/test-slack-webhook-action
+          NUM_VERIFIED=$((NUM_VERIFIED + $?))
+          gh attestation verify oci://ghcr.io/sgress454/test-slack-webhook-action:${{ steps.commit.outputs.short_commit }} --repo=sgress454/test-slack-webhook-action
+          NUM_VERIFIED=$((NUM_VERIFIED + $?))
+          if [[ "$NUM_VERIFIED" -ne "0" ]]; then echo "One or more attestation verifications failed (see above)"; fi          
+          exit $NUM_VERIFIED
+
+
